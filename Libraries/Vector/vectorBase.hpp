@@ -19,6 +19,8 @@ class Vector {
 	ulong _size = __size;
 	std::shared_ptr<memoryBlock<T, __size>> _data = nullptr;
 
+	static constexpr ulong comptimeSize = __size;
+
 	bool alloc(ulong size) {
 		if (isAlloc()) return false;
 		_size = size;
