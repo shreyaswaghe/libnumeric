@@ -14,74 +14,103 @@ namespace LinAlgebra {
 // NO-BLAS ATOMIC OPERATIONS
 template <typename T, ulong sa, ulong sb>
 void add(Vector<T, sa>& a, const Vector<T, sb>& b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] += b[i];
 }
 
 template <typename T, ulong sa>
 void add(Vector<T, sa>& a, T b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] += b;
 }
 
 template <typename T, ulong sa, ulong sb>
 void sub(Vector<T, sa>& a, const Vector<T, sb>& b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] -= b[i];
 }
 
 template <typename T, ulong sa>
 void sub(Vector<T, sa>& a, T b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] -= b;
 }
 
 template <typename T, ulong sa, ulong sb>
 void subLeft(Vector<T, sa>& a, const Vector<T, sb>& b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] = b[i] - a[i];
 }
 
 template <typename T, ulong sa>
 void subLeft(Vector<T, sa>& a, T b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] = b - a[i];
 }
 
 template <typename T, ulong sa, ulong sb>
 void mul(Vector<T, sa>& a, const Vector<T, sb>& b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] *= b[i];
 }
 
 template <typename T, ulong sa>
 void mul(Vector<T, sa>& a, T b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] *= b;
 }
 
 template <typename T, ulong sa, ulong sb>
 void div(Vector<T, sa>& a, const Vector<T, sb>& b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] /= b[i];
 }
 
 template <typename T, ulong sa>
 void div(Vector<T, sa>& a, T b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] /= b;
 }
 
 template <typename T, ulong sa, ulong sb>
 void divLeft(Vector<T, sa>& a, const Vector<T, sb>& b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] = b[i] / a[i];
 }
 
 template <typename T, ulong sa>
 void divLeft(Vector<T, sa>& a, T b) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 	for (ulong i = 0; i < a.size(); i++) a[i] = b / a[i];
+}
+
+template <typename T, ulong sa>
+T norminfOp(const Vector<T, sa>& a) {
+	T norm = 0.0;
+	for (ulong i = 0; i < a.size(); i++) norm = std::max(std::abs(a[i]));
+	return norm;
+}
+
+template <typename T, ulong sa>
+T norm2Op(const Vector<T, sa>& a) {
+	T norm = 0.0;
+	for (ulong i = 0; i < a.size(); i++) norm += a[i] * a[i];
+	return std::sqrt(norm);
+}
+
+template <typename T, ulong sa>
+T norm2sqOp(const Vector<T, sa>& a) {
+	T norm = 0.0;
+	for (ulong i = 0; i < a.size(); i++) norm += a[i] * a[i];
+	return norm;
+}
+
+template <typename T, ulong sa, ulong sb>
+T dotOp(const Vector<T, sa>& a, const Vector<T, sb>& b) {
+	_LINALG_VECVEC_SIZECHECK;
+	T result = T(0.0);
+	for (ulong i = 0; i < a.size(); i++) result = std::fma(a[i], b[i], result);
+	return result;
 }
 
 template <typename T, ulong sa, ulong sb>
@@ -129,7 +158,7 @@ struct SVOPImpl<T, sa, OPType::Mul, OPType::Add> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Mul>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(exp.scalar, exp.vec[i], dest[i]);
 	};
@@ -140,7 +169,7 @@ struct SVOPImpl<T, sa, OPType::Div, OPType::Add> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Div>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(1.0 / exp.scalar, exp.vec[i], dest[i]);
 	};
@@ -151,7 +180,7 @@ struct SVOPImpl<T, sa, OPType::DivLeft, OPType::Add> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::DivLeft>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(exp.scalar, 1.0 / exp.vec[i], dest[i]);
 	};
@@ -193,7 +222,7 @@ struct SVOPImpl<T, sa, OPType::Mul, OPType::Sub> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Mul>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(-exp.scalar, exp.vec[i], dest[i]);
 	};
@@ -204,7 +233,7 @@ struct SVOPImpl<T, sa, OPType::Div, OPType::Sub> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Div>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(-1.0 / exp.scalar, exp.vec[i], dest[i]);
 	};
@@ -215,7 +244,7 @@ struct SVOPImpl<T, sa, OPType::DivLeft, OPType::Sub> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::DivLeft>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(-exp.scalar, 1.0 / exp.vec[i], dest[i]);
 	};
@@ -227,7 +256,7 @@ struct SVOPImpl<T, sa, OPType::Add, OPType::Mul> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Add>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(dest[i], exp.vec[i], dest[i] * exp.scalar);
 	};
@@ -238,7 +267,7 @@ struct SVOPImpl<T, sa, OPType::Sub, OPType::Mul> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Sub>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(dest[i], exp.vec[i], -dest[i] * exp.scalar);
 	};
@@ -249,7 +278,7 @@ struct SVOPImpl<T, sa, OPType::SubLeft, OPType::Mul> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::SubLeft>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] = std::fma(dest[i], -exp.vec[i], dest[i] * exp.scalar);
 	};
@@ -291,7 +320,7 @@ struct SVOPImpl<T, sa, OPType::Add, OPType::Div> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Add>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] /= exp.vec[i] + exp.scalar;
 	};
@@ -302,7 +331,7 @@ struct SVOPImpl<T, sa, OPType::Sub, OPType::Div> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::Sub>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] /= exp.vec[i] - exp.scalar;
 	};
@@ -313,7 +342,7 @@ struct SVOPImpl<T, sa, OPType::SubLeft, OPType::Div> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const SVOP<T, sa, OPType::SubLeft>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.vec.size(); i++)
 			dest[i] /= exp.scalar - exp.vec[i];
 	};
@@ -442,7 +471,7 @@ struct VVOPImpl<T, sa, sb, OPType::Mul, OPType::Add> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Mul>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] = std::fma(exp.lhs[i], exp.rhs[i], dest[i]);
 	};
@@ -453,7 +482,7 @@ struct VVOPImpl<T, sa, sb, OPType::Div, OPType::Add> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Div>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] = std::fma(1.0 / exp.rhs[i], exp.lhs[i], dest[i]);
 	};
@@ -485,7 +514,7 @@ struct VVOPImpl<T, sa, sb, OPType::Mul, OPType::Sub> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Mul>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] = std::fma(-exp.lhs[i], exp.rhs[i], dest[i]);
 	};
@@ -496,7 +525,7 @@ struct VVOPImpl<T, sa, sb, OPType::Div, OPType::Sub> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Div>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] = std::fma(-1.0 / exp.rhs[i], exp.lhs[i], dest[i]);
 	};
@@ -508,7 +537,7 @@ struct VVOPImpl<T, sa, sb, OPType::Add, OPType::Mul> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Add>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] = std::fma(dest[i], exp.lhs[i], dest[i] * exp.rhs[i]);
 	};
@@ -519,7 +548,7 @@ struct VVOPImpl<T, sa, sb, OPType::Sub, OPType::Mul> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Sub>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] = std::fma(dest[i], exp.lhs[i], -dest[i] * exp.rhs);
 	};
@@ -551,7 +580,7 @@ struct VVOPImpl<T, sa, sb, OPType::Add, OPType::Div> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Add>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] /= exp.lhs[i] + exp.rhs[i];
 	};
@@ -562,7 +591,7 @@ struct VVOPImpl<T, sa, sb, OPType::Sub, OPType::Div> {
 	template <ulong __size>
 	static void apply(Vector<T, __size>& dest,
 					  const VVOP<T, sa, sb, OPType::Sub>& exp) {
-#pragma clang loop vectorize(enable)
+#pragma clang loop vectorize(enable) unroll(enable)
 		for (ulong i = 0; i < exp.lhs.size(); i++)
 			dest[i] /= exp.lhs[i] - exp.rhs[i];
 	};
@@ -642,19 +671,26 @@ auto operator-(const Vector<T, sa>& a) {
 
 // Dot Product
 
-template <typename T, ulong sa, ulong sb>
-T dotOp(const Vector<T, sa>& a, const Vector<T, sb>& b) {
-	_LINALG_VECVEC_SIZECHECK;
-	T result = T(0.0);
-	for (ulong i = 0; i < a.size(); i++) result = std::fma(a[i], b[i], result);
-	return result;
-}
-
 template <typename T, ulong __size>
 template <ulong sa>
 T Vector<T, __size>::dot(const Vector<T, sa>& a) {
 	_LINALG_SELFVEC_SIZECHECK;
 	return dotOp(*this, a);
+}
+
+template <typename T, ulong __size>
+T Vector<T, __size>::norminf() {
+	return norminfOp(*this);
+}
+
+template <typename T, ulong __size>
+T Vector<T, __size>::norm2() {
+	return norm2Op(*this);
+}
+
+template <typename T, ulong __size>
+T Vector<T, __size>::norm2sq() {
+	return norm2sqOp(*this);
 }
 
 // DISPATCH TO COMPUTATIONAL KERNELS ON ASSIGNMENT
