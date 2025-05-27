@@ -43,6 +43,16 @@ class Vector {
 			_data = std::make_shared<memoryBlock<T, __size>>();
 	}
 
+	Vector(const Vector<T, __size>& a) {
+		if constexpr (__size == 0)
+			alloc(a.size());
+		else
+			_data = std::make_shared<memoryBlock<T, __size>>();
+		*this = a;
+	}
+
+	Vector(Vector<T, __size>&& a) : _size(a._size), _data(a._data) {}
+
 	inline bool isAlloc() const { return static_cast<bool>(_data); }
 	inline ulong size() const { return __size > 0 ? __size : _size; }
 
@@ -53,6 +63,10 @@ class Vector {
 		return cpy;
 	}
 
+	Vector<T, __size>& operator=(const Vector<T, __size>&& a) {
+		_size = a._size;
+		_data = a._data;
+	}
 	Vector<T, __size>& operator=(const Vector<T, __size>& a);
 	template <ulong sa>
 	Vector<T, __size>& operator=(const Vector<T, sa>& a);
@@ -101,6 +115,9 @@ class Vector {
 
 	template <ulong sa>
 	T dot(const Vector<T, sa>& a);
+	T norminf();
+	T norm2();
+	T norm2sq();
 
 	void setZero() { std::memset(_data->raw(), 0, sizeof(T) * this->size()); }
 	void setOne() { std::fill_n(_data->raw(), this->size(), T(1.0)); }
