@@ -11,20 +11,25 @@ include(GNUInstallDirs)
 # Set default build type to Debug if not specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE
-      Release
+      Debug
       CACHE STRING "Choose the type of build." FORCE)
 endif()
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Rpass-analysis=loop-vectorize")
+set(CMAKE_CXX_FLAGS_RELEASE
+    "-O3 -march=native -Wall -Rpass-analysis=loop-vectorize -fsave-optimization-record"
+)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   message(STATUS "Applying Debug flags for macOS leaks")
   set(CMAKE_CXX_FLAGS_DEBUG
-      "-g -O0 -fno-omit-frame-pointer"
+      "-g -O0 -fno-omit-frame-pointer \
+      -Wall -Wextra"
       CACHE STRING "" FORCE)
 endif()
 
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Build
+      type:
+      ${CMAKE_BUILD_TYPE}")
 
 # Set ARMPL paths (adjust as needed)
 set(ARMPL_ROOT "/opt/arm/armpl_24.10_flang-new_clang_19")
@@ -43,10 +48,28 @@ find_library(
 
 # Ensure ARMPL is found
 if(ARMPL_BLAS_LIB AND ARMPL_LAPACK_LIB)
-  message(STATUS "Found ARMPL BLAS: ${ARMPL_BLAS_LIB}")
-  message(STATUS "Found ARMPL LAPACK: ${ARMPL_LAPACK_LIB}")
+  message(
+    STATUS
+      "Found
+      ARMPL
+      BLAS:
+      ${ARMPL_BLAS_LIB}")
+  message(
+    STATUS
+      "Found
+      ARMPL
+      LAPACK:
+      ${ARMPL_LAPACK_LIB}")
 else()
-  message(FATAL_ERROR "ARMPL libraries not found! Check installation.")
+  message(
+    FATAL_ERROR
+      "ARMPL
+      libraries
+      not
+      found!
+      Check
+      installation.
+      ")
 endif()
 
 add_subdirectory(Libraries)
