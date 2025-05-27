@@ -4,6 +4,12 @@
 
 namespace LinAlgebra {
 
+template <typename T, ulong ra, ulong ca, OPType _op>
+struct SMOP;
+
+template <typename T, ulong ra, ulong ca, ulong rb, ulong cb, OPType _op>
+struct MMOP;
+
 template <typename T = real, ulong __rows = 0, ulong __cols = 0>
 class Matrix {
    protected:
@@ -11,6 +17,9 @@ class Matrix {
 	ulong _cols = __cols;
 	ulong _size = __rows * __cols;
 	std::shared_ptr<memoryBlock<T, __rows * __cols>> _data = nullptr;
+
+	static constexpr ulong comptimeRows = __rows;
+	static constexpr ulong comptimeCols = __cols;
 
 	bool alloc(ulong rows, ulong cols) {
 		if (isAlloc()) return false;
@@ -28,25 +37,23 @@ class Matrix {
 			_data = std::make_shared<memoryBlock<T, __rows * __cols>>();
 	}
 
-	Matrix(ulong rows, ulong cols) {
+	explicit Matrix(ulong rows, ulong cols) {
 		if constexpr (__rows * __cols == 0)
 			alloc(rows, cols);
 		else
 			_data = std::make_shared<memoryBlock<T, __rows * __cols>>();
 	}
 
-	Matrix<T, __rows, __cols>& operator=(const Matrix<T, __rows, __cols>& ma) {
-		if (this->rows() != ma.rows() || this->cols() != ma.cols())
-			throw std::runtime_error(LINALGSIZEERROR);
-		std::memcpy(this->operator()(), ma(), sizeof(T) * this->size());
+	Matrix(const Matrix<T, __rows, __cols>& a) {
+		if constexpr (__rows * __cols == 0)
+			alloc(a.rows(), a.cols());
+		else
+			_data = std::make_shared<memoryBlock<T, __rows * __cols>>();
+		*this = a;
 	}
 
-	template <ulong ra, ulong ca>
-	Matrix<T, __rows, __cols>& operator=(const Matrix<T, ra, ca>& ma) {
-		if (this->rows() != ma.rows() || this->cols() != ma.cols())
-			throw std::runtime_error(LINALGSIZEERROR);
-		std::memcpy(this->operator()(), ma(), sizeof(T) * this->size());
-	}
+	Matrix(Matrix<T, __rows, __cols>&& a)
+		: _rows(a._rows), _cols(a._cols), _size(a._size), _data(a._data) {}
 
 	inline bool isAlloc() const { return static_cast<bool>(_data); }
 	inline ulong rows() const { return __rows > 0 ? __rows : _rows; }
@@ -69,38 +76,67 @@ class Matrix {
 	inline T* operator()(ulong i) { return _data->raw() + i; }
 	inline const T* operator()(ulong i) const { return _data->raw() + i; }
 
-	inline T* operator()(ulong i, ulong j) {
-		return _data->raw() + (i + ldim() * j);
-	}
+	inline T* operator()(ulong i, ulong j) { return _data->raw() + idx(i, j); }
 	inline const T* operator()(ulong i, ulong j) const {
-		return _data->raw() + (i + ldim() * j);
+		return _data->raw() + idx(i, j);
 	}
 
 	inline T& operator[](ulong i) { return _data->operator[](i); }
 	inline const T& operator[](ulong i) const { return _data->operator[](i); }
 
-	template <ulong r, ulong c>
-	Matrix<T, __rows, __cols>& operator+=(const Matrix<T, r, c>& ma);
+	Matrix<T, __rows, __cols>& operator=(const Matrix<T, __rows, __cols>& a);
+	template <ulong ra, ulong ca>
+	Matrix<T, __rows, __cols>& operator=(const Matrix<T, ra, ca>& a);
+	template <ulong ra, ulong ca, OPType _op>
+	Matrix<T, __rows, __cols>& operator=(const SMOP<T, ra, ca, _op>& exp);
+	template <ulong ra, ulong ca, ulong rb, ulong cb, OPType _op>
+	Matrix<T, __rows, __cols>& operator=(
+		const MMOP<T, ra, ca, rb, cb, _op>& exp);
 
-	template <ulong r, ulong c>
-	Matrix<T, __rows, __cols>& operator-=(const Matrix<T, r, c>& ma);
+	template <ulong ra, ulong ca>
+	Matrix<T, __rows, __cols>& operator+=(const Matrix<T, ra, ca>& a);
+	Matrix<T, __rows, __cols>& operator+=(const T& a);
+	template <ulong ra, ulong ca, OPType _op>
+	Matrix<T, __rows, __cols>& operator+=(const SMOP<T, ra, ca, _op>& exp);
+	template <ulong ra, ulong ca, ulong rb, ulong cb, OPType _op>
+	Matrix<T, __rows, __cols>& operator+=(
+		const MMOP<T, ra, ca, rb, cb, _op>& exp);
 
-	template <ulong r, ulong c>
-	Matrix<T, __rows, __cols>& operator*=(const Matrix<T, r, c>& ma);
+	template <ulong ra, ulong ca>
+	Matrix<T, __rows, __cols>& operator-=(const Matrix<T, ra, ca>& a);
+	Matrix<T, __rows, __cols>& operator-=(const T& a);
+	template <ulong ra, ulong ca, OPType _op>
+	Matrix<T, __rows, __cols>& operator-=(const SMOP<T, ra, ca, _op>& exp);
+	template <ulong ra, ulong ca, ulong rb, ulong cb, OPType _op>
+	Matrix<T, __rows, __cols>& operator-=(
+		const MMOP<T, ra, ca, rb, cb, _op>& exp);
 
-	template <ulong r, ulong c>
-	Matrix<T, __rows, __cols>& operator/=(const Matrix<T, r, c>& ma);
+	template <ulong ra, ulong ca>
+	Matrix<T, __rows, __cols>& operator*=(const Matrix<T, ra, ca>& a);
+	Matrix<T, __rows, __cols>& operator*=(const T& a);
+	template <ulong ra, ulong ca, OPType _op>
+	Matrix<T, __rows, __cols>& operator*=(const SMOP<T, ra, ca, _op>& exp);
+	template <ulong ra, ulong ca, ulong rb, ulong cb, OPType _op>
+	Matrix<T, __rows, __cols>& operator*=(
+		const MMOP<T, ra, ca, rb, cb, _op>& exp);
 
-	template <ulong sa>
-	Vector<T, __rows> matvec(const Vector<T, sa>& a) const;
+	template <ulong ra, ulong ca>
+	Matrix<T, __rows, __cols>& operator/=(const Matrix<T, ra, ca>& a);
+	Matrix<T, __rows, __cols>& operator/=(const T& a);
+	template <ulong ra, ulong ca, OPType _op>
+	Matrix<T, __rows, __cols>& operator/=(const SMOP<T, ra, ca, _op>& exp);
+	template <ulong ra, ulong ca, ulong rb, ulong cb, OPType _op>
+	Matrix<T, __rows, __cols>& operator/=(
+		const MMOP<T, ra, ca, rb, cb, _op>& exp);
 
 	template <ulong sa, ulong sb>
-	void matvecNoAlloc(const Vector<T, sa>& a, Vector<T, sb>& out) const;
+	void matvec(const Vector<T, sa>& a, Vector<T, sb>& out) const;
 
 	template <bool U, ulong sa, ulong sb>
 	void trsv(const Vector<T, sa>& a, Vector<T, sb>& out) const;
-	//	template <ulong ra, ulong ca>
-	//	Matrix<T, ra, ca> matmat(const Matrix<T, ra, ca>& a);
+
+	void setZero() { std::memset(_data->raw(), 0, sizeof(T) * this->size()); }
+	void setOne() { std::fill_n(_data->raw(), this->size(), T(1.0)); }
 };
 
 typedef Matrix<real, 1, 1> Matrix11;
