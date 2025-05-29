@@ -21,16 +21,6 @@ class Matrix {
 	static constexpr ulong comptimeRows = __rows;
 	static constexpr ulong comptimeCols = __cols;
 
-	bool alloc(ulong rows, ulong cols) {
-		if (isAlloc()) return false;
-		_rows = rows;
-		_cols = cols;
-		_size = rows * cols;
-		_data = std::make_shared<memoryBlock<T>>();
-		_data->alloc(_size);
-		return true;
-	}
-
    public:
 	Matrix() {
 		if constexpr (__rows * __cols > 0)
@@ -50,6 +40,17 @@ class Matrix {
 		else
 			_data = std::make_shared<memoryBlock<T, __rows * __cols>>();
 		*this = a;
+	}
+
+	bool alloc(ulong rows, ulong cols) {
+		if constexpr (__rows * __cols > 0) return false;
+		if (isAlloc()) return false;
+		_rows = rows;
+		_cols = cols;
+		_size = rows * cols;
+		_data = std::make_shared<memoryBlock<T, __rows * __cols>>();
+		_data->alloc(_size);
+		return true;
 	}
 
 	Matrix(Matrix<T, __rows, __cols>&& a)
@@ -76,9 +77,11 @@ class Matrix {
 	inline T* operator()(ulong i) { return _data->raw() + i; }
 	inline const T* operator()(ulong i) const { return _data->raw() + i; }
 
-	inline T* operator()(ulong i, ulong j) { return _data->raw() + idx(i, j); }
-	inline const T* operator()(ulong i, ulong j) const {
-		return _data->raw() + idx(i, j);
+	inline T& operator()(ulong i, ulong j) {
+		return *(_data->raw() + idx(i, j));
+	}
+	inline const T& operator()(ulong i, ulong j) const {
+		return *(_data->raw() + idx(i, j));
 	}
 
 	inline T& operator[](ulong i) { return _data->operator[](i); }

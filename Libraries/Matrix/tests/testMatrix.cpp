@@ -660,9 +660,9 @@ void test_matrix_expression_template_performance() {
 	// Initialize matrices
 	for (size_t i = 0; i < rows; ++i) {
 		for (size_t j = 0; j < cols; ++j) {
-			*a(i, j) = static_cast<double>(i * cols + j);
-			*b(i, j) = static_cast<double>((i * cols + j) * 2);
-			*c(i, j) = static_cast<double>(i * cols + j + 1);
+			a(i, j) = static_cast<double>(i * cols + j);
+			b(i, j) = static_cast<double>((i * cols + j) * 2);
+			c(i, j) = static_cast<double>(i * cols + j + 1);
 		}
 	}
 
@@ -685,7 +685,7 @@ void test_matrix_expression_template_performance() {
 		for (size_t j = 0; j < 3; ++j) {
 			double idx = static_cast<double>(i * cols + j);
 			double expected = (idx + idx * 2) * (idx + 1) - 1.0;
-			assert(isApproxEqual(*result(i, j), expected));
+			assert(isApproxEqual(result(i, j), expected));
 		}
 	}
 }
@@ -697,9 +697,9 @@ void test_large_matrix_operations() {
 	// Initialize matrices
 	for (size_t i = 0; i < large_rows; ++i) {
 		for (size_t j = 0; j < large_cols; ++j) {
-			*a(i, j) = static_cast<double>(i * large_cols + j);
-			*b(i, j) = static_cast<double>((large_rows * large_cols) -
-										   (i * large_cols + j));
+			a(i, j) = static_cast<double>(i * large_cols + j);
+			b(i, j) = static_cast<double>((large_rows * large_cols) -
+										  (i * large_cols + j));
 		}
 	}
 
@@ -718,11 +718,11 @@ void test_large_matrix_operations() {
 
 	// Verify some results
 	double expected_val = static_cast<double>(large_rows * large_cols) * 0.5;
-	assert(isApproxEqual(*a(0, 0), expected_val));
-	assert(isApproxEqual(*a(large_rows - 1, large_cols - 1), expected_val));
+	assert(isApproxEqual(a(0, 0), expected_val));
+	assert(isApproxEqual(a(large_rows - 1, large_cols - 1), expected_val));
 
 	// Check a few more elements
-	assert(isApproxEqual(*a(large_rows / 2, large_cols / 2), expected_val));
+	assert(isApproxEqual(a(large_rows / 2, large_cols / 2), expected_val));
 }
 
 void test_matrix_multiplication_performance() {
@@ -732,8 +732,8 @@ void test_matrix_multiplication_performance() {
 	// Initialize matrices
 	for (size_t i = 0; i < dim; ++i) {
 		for (size_t j = 0; j < dim; ++j) {
-			*a(i, j) = static_cast<double>(i + j + 1);
-			*b(i, j) = static_cast<double>(i * j + 1);
+			a(i, j) = static_cast<double>(i + j + 1);
+			b(i, j) = static_cast<double>(i * j + 1);
 		}
 	}
 
@@ -751,12 +751,12 @@ void test_matrix_multiplication_performance() {
 
 	// Verify a few elements by manual calculation
 	// result(0,0) should be sum of a(0,k) * b(k,0) for k=0 to dim-1
-	double expected_00 = *a(0, 0) * *b(0, 0);
-	assert(isApproxEqual(*result(0, 0), expected_00));
+	double expected_00 = a(0, 0) * b(0, 0);
+	assert(isApproxEqual(result(0, 0), expected_00));
 
 	// Check another element
-	double expected_11 = *a(1, 1) * *b(1, 1);
-	assert(isApproxEqual(*result(1, 1), expected_11));
+	double expected_11 = a(1, 1) * b(1, 1);
+	assert(isApproxEqual(result(1, 1), expected_11));
 }
 
 /**
@@ -800,7 +800,7 @@ void test_matrix_scalar_operations_performance() {
 	// Initialize matrix
 	for (size_t i = 0; i < size; ++i) {
 		for (size_t j = 0; j < size; ++j) {
-			*a(i, j) = static_cast<double>(i + j + 1);
+			a(i, j) = static_cast<double>(i + j + 1);
 		}
 	}
 
@@ -822,10 +822,10 @@ void test_matrix_scalar_operations_performance() {
 	// Verify a few elements
 	// Original: (i + j + 1), after ops: ((i + j + 1 + 5) * 2 - 3) / 1.5
 	double expected_00 = ((1.0 + 5.0) * 2.0 - 3.0) / 1.5;
-	assert(isApproxEqual(*a(0, 0), expected_00));
+	assert(isApproxEqual(a(0, 0), expected_00));
 
 	double expected_11 = ((3.0 + 5.0) * 2.0 - 3.0) / 1.5;
-	assert(isApproxEqual(*a(1, 1), expected_11));
+	assert(isApproxEqual(a(1, 1), expected_11));
 }
 
 void test_matrix_copy_performance() {
@@ -835,7 +835,7 @@ void test_matrix_copy_performance() {
 	// Initialize matrix a
 	for (size_t i = 0; i < size; ++i) {
 		for (size_t j = 0; j < size; ++j) {
-			*a(i, j) = static_cast<double>(i * size + j);
+			a(i, j) = static_cast<double>(i * size + j);
 		}
 	}
 
@@ -854,7 +854,7 @@ void test_matrix_copy_performance() {
 	// Verify copy correctness
 	for (size_t i = 0; i < 5; ++i) {
 		for (size_t j = 0; j < 5; ++j) {
-			assert(isApproxEqual(*b(i, j), *a(i, j)));
+			assert(isApproxEqual(b(i, j), a(i, j)));
 		}
 	}
 }
@@ -867,7 +867,7 @@ void test_matrix_vector_multiplication_performance() {
 	// Initialize matrix
 	for (size_t i = 0; i < dim; ++i) {
 		for (size_t j = 0; j < dim; ++j) {
-			*mat(i, j) = static_cast<double>(i + j + 1);
+			mat(i, j) = static_cast<double>(i + j + 1);
 		}
 	}
 
@@ -893,21 +893,21 @@ void test_matrix_vector_multiplication_performance() {
 	// result[i] should be sum of mat(i,j) * vec[j] for j=0 to dim-1
 	double expected_0 = 0.0;
 	for (size_t j = 0; j < dim; ++j) {
-		expected_0 += *mat(0, j) * vec[j];
+		expected_0 += mat(0, j) * vec[j];
 	}
 	assert(isApproxEqual(result[0], expected_0));
 
 	// Check another element
 	double expected_1 = 0.0;
 	for (size_t j = 0; j < dim; ++j) {
-		expected_1 += *mat(1, j) * vec[j];
+		expected_1 += mat(1, j) * vec[j];
 	}
 	assert(isApproxEqual(result[1], expected_1));
 
 	// Check last element
 	double expected_last = 0.0;
 	for (size_t j = 0; j < dim; ++j) {
-		expected_last += *mat(dim - 1, j) * vec[j];
+		expected_last += mat(dim - 1, j) * vec[j];
 	}
 	assert(isApproxEqual(result[dim - 1], expected_last));
 }
@@ -920,8 +920,8 @@ void test_large_matrix_vector_multiplication() {
 	// Initialize matrix with a pattern
 	for (size_t i = 0; i < large_dim; ++i) {
 		for (size_t j = 0; j < large_dim; ++j) {
-			*mat(i, j) = static_cast<double>((i + 1) * (j + 1)) /
-						 static_cast<double>(large_dim);
+			mat(i, j) = static_cast<double>((i + 1) * (j + 1)) /
+						static_cast<double>(large_dim);
 		}
 	}
 
@@ -946,14 +946,14 @@ void test_large_matrix_vector_multiplication() {
 	// Verify first and middle elements
 	double expected_0 = 0.0;
 	for (size_t j = 0; j < large_dim; ++j) {
-		expected_0 += *mat(0, j) * vec[j];
+		expected_0 += mat(0, j) * vec[j];
 	}
 	assert(isApproxEqual(result[0], expected_0));
 
 	double expected_mid = 0.0;
 	size_t mid = large_dim / 2;
 	for (size_t j = 0; j < large_dim; ++j) {
-		expected_mid += *mat(mid, j) * vec[j];
+		expected_mid += mat(mid, j) * vec[j];
 	}
 	assert(isApproxEqual(result[mid], expected_mid));
 }
@@ -967,7 +967,7 @@ void test_rectangular_matrix_vector_multiplication() {
 	// Initialize matrix
 	for (size_t i = 0; i < rows; ++i) {
 		for (size_t j = 0; j < cols; ++j) {
-			*mat(i, j) = static_cast<double>(i * cols + j + 1) / 100.0;
+			mat(i, j) = static_cast<double>(i * cols + j + 1) / 100.0;
 		}
 	}
 
@@ -992,13 +992,13 @@ void test_rectangular_matrix_vector_multiplication() {
 	// Verify first and last elements
 	double expected_0 = 0.0;
 	for (size_t j = 0; j < cols; ++j) {
-		expected_0 += *mat(0, j) * vec[j];
+		expected_0 += mat(0, j) * vec[j];
 	}
 	assert(isApproxEqual(result[0], expected_0));
 
 	double expected_last = 0.0;
 	for (size_t j = 0; j < cols; ++j) {
-		expected_last += *mat(rows - 1, j) * vec[j];
+		expected_last += mat(rows - 1, j) * vec[j];
 	}
 	assert(isApproxEqual(result[rows - 1], expected_last));
 }

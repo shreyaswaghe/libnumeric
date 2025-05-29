@@ -104,7 +104,7 @@ void matvecOp(const Matrix<T, rA, cA>& A, const Vector<T, sa>& a,
 	out.setZero();
 	for (ulong iCol = 0; iCol < A.cols(); iCol++) {
 		const T vj = a[iCol];
-		const T* A_jcol = A(0, iCol);
+		const T* A_jcol = &A(0, iCol);
 		for (ulong iRow = 0; iRow < A.rows(); iRow++) {
 			out[iRow] += A_jcol[iRow] * vj;
 		}
