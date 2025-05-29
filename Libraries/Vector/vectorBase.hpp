@@ -21,19 +21,20 @@ class Vector {
 
 	static constexpr ulong comptimeSize = __size;
 
-	bool alloc(ulong size) {
-		if (isAlloc()) return false;
-		_size = size;
-		_data = std::make_shared<memoryBlock<T>>();
-		_data->alloc(size);
-		return true;
-	}
-
    public:
 	Vector() {
 		if constexpr (__size > 0) {
 			_data = std::make_shared<memoryBlock<T, __size>>();
 		}
+	}
+
+	bool alloc(ulong size) {
+		if constexpr (__size > 0) return false;
+		if (isAlloc()) return false;
+		_size = size;
+		_data = std::make_shared<memoryBlock<T, __size>>();
+		_data->alloc(size);
+		return true;
 	}
 
 	explicit Vector(ulong size) {

@@ -44,6 +44,7 @@ struct memoryBlock<T, __size> {
 	memoryBlock() = default;
 
 	// No alloc() needed: statically allocated
+	bool alloc(ulong size) {}
 
 	T& operator[](ulong i) { return _data[i]; }
 	const T& operator[](ulong i) const { return _data[i]; }
