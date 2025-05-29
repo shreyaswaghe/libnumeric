@@ -6,5 +6,4 @@
 #include "vectorOperations.hpp"
 #else
 #include "operationsNoBlas.hpp"
-// #include "vectorOperations.hpp"
 #endif
