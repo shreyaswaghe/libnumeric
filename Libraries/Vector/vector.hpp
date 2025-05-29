@@ -1,9 +1,7 @@
 #include "vectorBase.hpp"
 
-#define _USE_LINALG_BLAS 0
-
-#if _USE_LINALG_BLAS
-#include "vectorOperations.hpp"
+#if USE_LINALG_BLAS
+#include "operationsBlas.hpp"
 #else
 #include "operationsNoBlas.hpp"
 #endif

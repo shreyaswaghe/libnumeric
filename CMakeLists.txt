@@ -16,46 +16,57 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 -march=native -Wall -Rpass-analysis=loop-vectorize -fsave-optimization-record"
-)
+    "-O3 -march=native -Wall -Rpass-missed=loop-vectorize")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   message(STATUS "Applying Debug flags for macOS leaks")
   set(CMAKE_CXX_FLAGS_DEBUG
-      "-g -O0 -fno-omit-frame-pointer \
-      -Wall -Wextra"
+      "-g -O2 -fno-omit-frame-pointer \
+      -Wall -Rpass-missed=loop-vectorize"
       CACHE STRING "" FORCE)
 endif()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-# Set ARMPL paths (adjust as needed)
-set(ARMPL_ROOT "/opt/arm/armpl_24.10_flang-new_clang_19")
-set(ARMPL_INCLUDE_DIR "${ARMPL_ROOT}/include")
-set(ARMPL_LIB_DIR "${ARMPL_ROOT}/lib")
-
-# Locate ARMPL libraries
-find_library(
-  ARMPL_BLAS_LIB
-  NAMES armpl
-  PATHS ${ARMPL_LIB_DIR})
-find_library(
-  ARMPL_LAPACK_LIB
-  NAMES armpl
-  PATHS ${ARMPL_LIB_DIR})
-
-# Ensure ARMPL is found
-if(ARMPL_BLAS_LIB AND ARMPL_LAPACK_LIB)
-  message(STATUS "Found ARMPL BLAS: ${ARMPL_BLAS_LIB}")
-  message(STATUS "Found ARMPL LAPACK: ${ARMPL_LAPACK_LIB}")
-else()
-  message(FATAL_ERROR "ARMPL libraries not found! Check installation.")
-endif()
+option(USE_LINALG_BLAS "Use BLAS for linear algebra operations" OFF)
 
 add_library(swnumeric INTERFACE)
+if(USE_LINALG_BLAS)
+  message(STATUS "Using BLAS Libs")
+  target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=1)
+
+  # Set ARMPL paths (adjust as needed)
+  set(ARMPL_ROOT "/opt/arm/armpl_24.10_flang-new_clang_19")
+  set(ARMPL_INCLUDE_DIR "${ARMPL_ROOT}/include")
+  set(ARMPL_LIB_DIR "${ARMPL_ROOT}/lib")
+
+  # Locate ARMPL libraries
+  find_library(
+    ARMPL_BLAS_LIB
+    NAMES armpl
+    PATHS ${ARMPL_LIB_DIR})
+  find_library(
+    ARMPL_LAPACK_LIB
+    NAMES armpl
+    PATHS ${ARMPL_LIB_DIR})
+
+  # Ensure ARMPL is found
+  if(ARMPL_BLAS_LIB AND ARMPL_LAPACK_LIB)
+    message(STATUS "Found ARMPL BLAS: ${ARMPL_BLAS_LIB}")
+    message(STATUS "Found ARMPL LAPACK: ${ARMPL_LAPACK_LIB}")
+  else()
+    message(STATUS "Not using BLAS Libs")
+    message(FATAL_ERROR "ARMPL libraries not found! Check installation.")
+  endif()
+
+  target_link_libraries(swnumeric INTERFACE ${ARMPL_BLAS_LIB}
+                                            ${ARMPL_LAPACK_LIB})
+
+else()
+  target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=0)
+endif()
+
 enable_testing()
 
 add_subdirectory(Libraries)
 add_subdirectory(Applications)
-
-target_link_libraries(swnumeric INTERFACE ${ARMPL_BLAS_LIB} ${ARMPL_LAPACK_LIB})

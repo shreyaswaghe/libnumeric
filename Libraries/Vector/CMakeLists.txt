@@ -1,6 +1,6 @@
 # Set the include directories
 target_include_directories(
-  swnumeric INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/Libraries
+  swnumeric INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}
                       ${ARMPL_INCLUDE_DIR})
 
 # Link other libraries here if needed target_link_libraries(libnumeric_vector
