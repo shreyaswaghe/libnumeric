@@ -8,7 +8,7 @@ using namespace Quadrature;
 
 // Test integrand classes
 template <typename T>
-class ConstantIntegrand : public OneDimIntegrand<T> {
+class ConstantIntegrand : public RtoR<T> {
    private:
 	T constant;
 
@@ -18,25 +18,25 @@ class ConstantIntegrand : public OneDimIntegrand<T> {
 };
 
 template <typename T>
-class LinearIntegrand : public OneDimIntegrand<T> {
+class LinearIntegrand : public RtoR<T> {
    public:
 	T eval(T x) const override { return x; }
 };
 
 template <typename T>
-class QuadraticIntegrand : public OneDimIntegrand<T> {
+class QuadraticIntegrand : public RtoR<T> {
    public:
 	T eval(T x) const override { return x * x; }
 };
 
 template <typename T>
-class CubicIntegrand : public OneDimIntegrand<T> {
+class CubicIntegrand : public RtoR<T> {
    public:
 	T eval(T x) const override { return x * x * x; }
 };
 
 template <typename T>
-class PolynomialIntegrand : public OneDimIntegrand<T> {
+class PolynomialIntegrand : public RtoR<T> {
    private:
 	int degree;
 
@@ -46,13 +46,13 @@ class PolynomialIntegrand : public OneDimIntegrand<T> {
 };
 
 template <typename T>
-class SinIntegrand : public OneDimIntegrand<T> {
+class SinIntegrand : public RtoR<T> {
    public:
 	T eval(T x) const override { return std::sin(x); }
 };
 
 template <typename T>
-class ExpIntegrand : public OneDimIntegrand<T> {
+class ExpIntegrand : public RtoR<T> {
    public:
 	T eval(T x) const override { return std::exp(x); }
 };
@@ -71,7 +71,7 @@ bool approx_equal(T a, T b, T tolerance = static_cast<T>(1e-12)) {
 void test_constant_integration() {
 	std::cout << "Testing constant integration...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 	ConstantIntegrand<real> constant_5(5.0);
 
 	// Integral of 5 from -1 to 1 should be 10
@@ -96,7 +96,7 @@ void test_constant_integration() {
 void test_linear_integration() {
 	std::cout << "Testing linear integration...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 	LinearIntegrand<real> linear;
 
 	// Integral of x from -1 to 1 should be 0 (odd function)
@@ -121,7 +121,7 @@ void test_linear_integration() {
 void test_quadratic_integration() {
 	std::cout << "Testing quadratic integration...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 	QuadraticIntegrand<real> quadratic;
 
 	// Integral of x^2 from -1 to 1 should be 2/3
@@ -147,7 +147,7 @@ void test_quadratic_integration() {
 void test_cubic_integration() {
 	std::cout << "Testing cubic integration...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 	CubicIntegrand<real> cubic;
 
 	// Integral of x^3 from -1 to 1 should be 0 (odd function)
@@ -173,7 +173,7 @@ void test_cubic_integration() {
 void test_high_degree_polynomials() {
 	std::cout << "Testing high degree polynomial integration...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 
 	// Test x^4: integral from -1 to 1 should be 2/5
 	PolynomialIntegrand<real> poly4(4);
@@ -209,7 +209,7 @@ void test_high_degree_polynomials() {
 void test_transcendental_functions() {
 	std::cout << "Testing transcendental function integration...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 
 	// Test sin(x) from -1 to 1: should be 0 (odd function)
 	SinIntegrand<real> sin_func;
@@ -233,7 +233,7 @@ void test_transcendental_functions() {
 void test_convergence() {
 	std::cout << "Testing convergence with increasing points...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 	ExpIntegrand<real> exp_func;
 	real expected = std::exp(1.0) - std::exp(-1.0);
 
@@ -264,7 +264,7 @@ void test_convergence() {
 void test_float_precision() {
 	std::cout << "Testing single precision (float) implementation...\n";
 
-	GaussLegendreIntegratorF gl_f;
+	GaussLegendre<single> gl_f;
 	ConstantIntegrand<single> constant_3(3.0f);
 	QuadraticIntegrand<single> quadratic_f;
 
@@ -285,7 +285,7 @@ void test_kahan_summation() {
 
 	// This test verifies that the Kahan summation used in 16, 32, 64 point
 	// rules provides better numerical stability
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 	ConstantIntegrand<real> constant_1(1.0);
 
 	// For a constant function, all rules should give exactly the same result
@@ -304,7 +304,7 @@ void test_kahan_summation() {
 void test_symmetry() {
 	std::cout << "Testing symmetry properties...\n";
 
-	GaussLegendreIntegrator gl;
+	GaussLegendre<real> gl;
 
 	// Test that odd functions integrate to zero
 	LinearIntegrand<real> linear;

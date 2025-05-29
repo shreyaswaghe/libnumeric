@@ -1,11 +1,9 @@
 #pragma once
 
+#include "Applications/Definitions/functors.hpp"
 #include "Libraries/Vector/vector.hpp"
-#include "common.hpp"
 
 namespace Quadrature {
-
-namespace Internal {
 
 template <typename T>
 struct GaussLegendre {
@@ -74,7 +72,7 @@ struct GaussLegendre {
    public:
 	template <typename Func, uint8_t points>
 	T eval(const Func& I) {
-		static_assert(std::derived_from<Func, OneDimIntegrand<T>>,
+		static_assert(std::derived_from<Func, RtoR<T>>,
 					  "Define integrand as subclass of OneDimIntegrand!!");
 		static_assert((points == 2) || (points == 4) || (points == 8) ||
 						  (points == 16) || (points == 32) || (points == 64),
@@ -138,9 +136,4 @@ struct GaussLegendre {
 		}
 	}
 };
-}  // namespace Internal
-
-using GaussLegendreIntegrator = Internal::GaussLegendre<real>;
-using GaussLegendreIntegratorF = Internal::GaussLegendre<single>;
-
 }  // namespace Quadrature

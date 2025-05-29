@@ -1,3 +1,5 @@
+option(USE_LINALG_BLAS "Use BLAS for linear algebra operations" OFF)
+
 cmake_minimum_required(VERSION 3.20)
 project(numeric LANGUAGES CXX)
 
@@ -16,7 +18,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 -march=native -Wall -Rpass-missed=loop-vectorize")
+    "-O3 -larmpl -march=native -Wall -Rpass-missed=loop-vectorize")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   message(STATUS "Applying Debug flags for macOS leaks")
@@ -27,8 +29,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-
-option(USE_LINALG_BLAS "Use BLAS for linear algebra operations" OFF)
 
 add_library(swnumeric INTERFACE)
 if(USE_LINALG_BLAS)
@@ -49,18 +49,25 @@ if(USE_LINALG_BLAS)
     ARMPL_LAPACK_LIB
     NAMES armpl
     PATHS ${ARMPL_LIB_DIR})
+  find_library(
+    ARMPL_AMATH_LIB
+    NAMES amath
+    PATHS ${ARMPL_LIB_DIR})
 
   # Ensure ARMPL is found
   if(ARMPL_BLAS_LIB AND ARMPL_LAPACK_LIB)
     message(STATUS "Found ARMPL BLAS: ${ARMPL_BLAS_LIB}")
     message(STATUS "Found ARMPL LAPACK: ${ARMPL_LAPACK_LIB}")
+    message(STATUS "Found ARMPL AMATH: ${ARMPL_AMATH_LIB}")
+
   else()
     message(STATUS "Not using BLAS Libs")
     message(FATAL_ERROR "ARMPL libraries not found! Check installation.")
   endif()
 
-  target_link_libraries(swnumeric INTERFACE ${ARMPL_BLAS_LIB}
-                                            ${ARMPL_LAPACK_LIB})
+  target_link_libraries(
+    swnumeric INTERFACE ${ARMPL_BLAS_LIB} ${ARMPL_LAPACK_LIB}
+                        ${ARMPL_AMATH_LIB})
 
 else()
   target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=0)

@@ -67,6 +67,7 @@ class Vector {
 	Vector<T, __size>& operator=(const Vector<T, __size>&& a) {
 		_size = a._size;
 		_data = a._data;
+		return *this;
 	}
 	Vector<T, __size>& operator=(const Vector<T, __size>& a);
 	template <ulong sa>

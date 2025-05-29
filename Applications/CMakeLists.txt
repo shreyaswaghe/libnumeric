@@ -1,2 +1,3 @@
+add_subdirectory(Definitions)
 add_subdirectory(NumericalIntegration)
 add_subdirectory(ODEIntegration)
