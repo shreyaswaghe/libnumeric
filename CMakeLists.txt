@@ -1,4 +1,16 @@
+cmake_minimum_required(VERSION 3.20.0)
+
 project(swnumericlib CXX)
+
+message(STATUS "CMAKE_PROJECT_NAME: '${CMAKE_PROJECT_NAME}'")
+message(STATUS "PROJECT_NAME: '${PROJECT_NAME}'")
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  message(STATUS "Condition result: TRUE - this is the main project")
+  # your code here
+else()
+  message(STATUS "Condition result: FALSE - this is a subproject")
+endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(CMAKE_CXX_STANDARD 23)
@@ -67,7 +79,6 @@ if(USE_LINALG_BLAS)
     message(STATUS "Found ARMPL AMATH: ${ARMPL_AMATH_LIB}")
 
   else()
-    message(STATUS "Not using BLAS Libs")
     message(FATAL_ERROR "ARMPL libraries not found! Check installation.")
   endif()
 
@@ -76,6 +87,7 @@ if(USE_LINALG_BLAS)
                         ${ARMPL_AMATH_LIB})
 
 else()
+  message(STATUS "Not using BLAS Libs")
   target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=0)
 endif()
 
