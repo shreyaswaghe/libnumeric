@@ -7,7 +7,6 @@ namespace Quadrature {
 
 template <typename T>
 struct GaussLegendre {
-   protected:
 	constexpr static T wt2[1] = {1.0000000000000000};
 	constexpr static T ab2[1] = {0.5773502691896257};
 
@@ -69,9 +68,8 @@ struct GaussLegendre {
 		0.9733268277899110, 0.9833362538846260, 0.9910133714767443,
 		0.9963401167719553, 0.9993050417357722};
 
-   public:
 	template <typename Func, uint8_t points>
-	T eval(const Func& I) {
+	static T eval(const Func& I) {
 		static_assert(std::derived_from<Func, RtoR<T>>,
 					  "Define integrand as subclass of OneDimIntegrand!!");
 		static_assert((points == 2) || (points == 4) || (points == 8) ||

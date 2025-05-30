@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
+option(USE_LINALG_BLAS "Use BLAS for linear algebra operations" OFF)
+
 project(swnumericlib CXX)
 add_library(swnumeric INTERFACE)
 
