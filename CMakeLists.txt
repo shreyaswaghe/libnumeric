@@ -1,34 +1,40 @@
-option(USE_LINALG_BLAS "Use BLAS for linear algebra operations" OFF)
+project(swnumericlib CXX)
 
-cmake_minimum_required(VERSION 3.20)
-project(numeric LANGUAGES CXX)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+  set(CMAKE_CXX_STANDARD 23)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  # Set default build type only for main project
+  if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE
+        Debug
+        CACHE STRING "Choose the type of build." FORCE)
+  endif()
 
-include(GNUInstallDirs)
+  enable_testing()
 
-# Set default build type to Debug if not specified
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE
-      Debug
-      CACHE STRING "Choose the type of build." FORCE)
-endif()
+  # Set default build type to Debug if not specified
+  if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE
+        Debug
+        CACHE STRING "Choose the type of build." FORCE)
+  endif()
 
-set(CMAKE_CXX_FLAGS_RELEASE
-    "-O3 -larmpl -march=native -Wall -Rpass-missed=loop-vectorize")
+  set(CMAKE_CXX_FLAGS_RELEASE
+      "-O3 -larmpl -march=native -Wall -Rpass-missed=loop-vectorize")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  message(STATUS "Applying Debug flags for macOS leaks")
-  set(CMAKE_CXX_FLAGS_DEBUG
-      "-g -O2 -fno-omit-frame-pointer \
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Applying Debug flags for macOS leaks")
+    set(CMAKE_CXX_FLAGS_DEBUG
+        "-g -O2 -fno-omit-frame-pointer \
       -Wall -Rpass-missed=loop-vectorize"
-      CACHE STRING "" FORCE)
-endif()
+        CACHE STRING "" FORCE)
+  endif()
 
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+  message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+endif()
 
 add_library(swnumeric INTERFACE)
 if(USE_LINALG_BLAS)
@@ -72,8 +78,6 @@ if(USE_LINALG_BLAS)
 else()
   target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=0)
 endif()
-
-enable_testing()
 
 add_subdirectory(Libraries)
 add_subdirectory(Applications)
