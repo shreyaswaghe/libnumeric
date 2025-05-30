@@ -38,7 +38,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
   message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-  target_include_directories(swnumeric INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
 if(USE_LINALG_BLAS)
@@ -83,5 +82,6 @@ else()
   target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=0)
 endif()
 
+target_include_directories(swnumeric INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 add_subdirectory(Libraries)
 add_subdirectory(Applications)
