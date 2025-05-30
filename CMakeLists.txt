@@ -1,16 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 project(swnumericlib CXX)
-
-message(STATUS "CMAKE_PROJECT_NAME: '${CMAKE_PROJECT_NAME}'")
-message(STATUS "PROJECT_NAME: '${PROJECT_NAME}'")
-
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-  message(STATUS "Condition result: TRUE - this is the main project")
-  # your code here
-else()
-  message(STATUS "Condition result: FALSE - this is a subproject")
-endif()
+add_library(swnumeric INTERFACE)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(CMAKE_CXX_STANDARD 23)
@@ -46,9 +37,10 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   endif()
 
   message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+  target_include_directories(swnumeric INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
-add_library(swnumeric INTERFACE)
 if(USE_LINALG_BLAS)
   message(STATUS "Using BLAS Libs")
   target_compile_definitions(swnumeric INTERFACE USE_LINALG_BLAS=1)

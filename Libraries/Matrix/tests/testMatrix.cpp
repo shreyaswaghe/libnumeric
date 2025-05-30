@@ -3,8 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../Vector/vector.hpp"
-#include "../matrix.hpp"
+#include "Libraries/Matrix/matrix.hpp"
 
 using namespace LinAlgebra;
 

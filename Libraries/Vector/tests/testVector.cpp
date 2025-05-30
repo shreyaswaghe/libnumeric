@@ -3,8 +3,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "../vector.hpp"
-#include "vectorBase.hpp"
+#include "Libraries/Vector/vector.hpp"
 
 using namespace LinAlgebra;
 
